@@ -320,7 +320,7 @@ function initAircraft() {
   }
 }
 
-const S=2.7,SPW=23,SPH=44;
+const S=2.1,SPW=23,SPH=44;
 const player={x:0,y:0,w:SPW*S,h:SPH*S,spd:3.5,dir:'down',fr:0,ft:0,mv:false,spawned:false};
 let pts=[];
 
@@ -993,15 +993,17 @@ function initCars(){
   const{h1y,h2y,v1x,v2x}=streetCenters();
   const CL=26,CW=10, VCL=17,VCW=8.8;
   const vBase=horizY+(H-horizY)*.05,vRange=H-horizY-VCL;
+  const hUp=hy=>hy-GAP_Y/4-CW/2, hDn=hy=>hy+GAP_Y/4-CW/2;
+  const vR=vx=>vx+GAP_X/4-VCW/2, vL=vx=>vx-GAP_X/4-VCW/2;
   cars=[
-    {horiz:true, ly:h1y-CW-1,  p:W*.12,            dir:1,  spd:1.3,  color:'#bb1818',CL,CW},
-    {horiz:true, ly:h1y+1,     p:W*.68,             dir:-1, spd:1.05, color:'#1e38aa',CL,CW},
-    {horiz:true, ly:h2y-CW-1,  p:W*.42,             dir:1,  spd:1.1,  color:'#888899',CL,CW},
-    {horiz:true, ly:h2y+1,     p:W*.82,             dir:-1, spd:0.9,  color:'#bb9900',CL,CW},
-    {horiz:false,lx:v1x+0.5,   p:vBase+vRange*.22,  dir:1,  spd:1.0,  color:'#1a6622',CL:VCL,CW:VCW},
-    {horiz:false,lx:v1x-(VCW+0.5),p:vBase+vRange*.68, dir:-1, spd:1.12, color:'#ddddcc',CL:VCL,CW:VCW},
-    {horiz:false,lx:v2x+0.5,   p:vBase+vRange*.55,  dir:1,  spd:0.95, color:'#cc4400',CL:VCL,CW:VCW},
-    {horiz:false,lx:v2x-(VCW+0.5),p:vBase+vRange*.15, dir:-1, spd:1.05, color:'#223344',CL:VCL,CW:VCW},
+    {horiz:true, ly:hUp(h1y),  p:W*.12,             dir:1,  spd:1.3,  color:'#bb1818',CL,CW},
+    {horiz:true, ly:hDn(h1y),  p:W*.68,             dir:-1, spd:1.05, color:'#1e38aa',CL,CW},
+    {horiz:true, ly:hUp(h2y),  p:W*.42,             dir:1,  spd:1.1,  color:'#888899',CL,CW},
+    {horiz:true, ly:hDn(h2y),  p:W*.82,             dir:-1, spd:0.9,  color:'#bb9900',CL,CW},
+    {horiz:false,lx:vR(v1x),   p:vBase+vRange*.22,  dir:1,  spd:1.0,  color:'#1a6622',CL:VCL,CW:VCW},
+    {horiz:false,lx:vL(v1x),   p:vBase+vRange*.68,  dir:-1, spd:1.12, color:'#ddddcc',CL:VCL,CW:VCW},
+    {horiz:false,lx:vR(v2x),   p:vBase+vRange*.55,  dir:1,  spd:0.95, color:'#cc4400',CL:VCL,CW:VCW},
+    {horiz:false,lx:vL(v2x),   p:vBase+vRange*.15,  dir:-1, spd:1.05, color:'#223344',CL:VCL,CW:VCW},
   ];
 }
 function updateCars(){
@@ -1068,52 +1070,81 @@ function drawSprite(){
   const BY=Y+bob*S;
   const P=(c,r,cw,ch,col)=>{ctx.fillStyle=col;ctx.fillRect(X+c*S,BY+r*S,cw*S,ch*S)};
 
-  const SUIT = '#1a2538';
-  const SHIRT = '#d0e0f0';
-  const TIE = '#3a0f1a';
-  const SKIN = '#f0c8a0';
-  const HAIR = '#1a1a1a';
-  const SHOE = '#0f0f0f';
+  const OUT  = '#05080f';
+  const SUIT = '#1c2940', SUITL='#2a3c5c', SUITD='#131c2e';
+  const SHIRT= '#dce9f5';
+  const TIE  = '#12707e', TIED='#0b4c58';
+  const SKIN = '#f0c8a0', SKIND='#d9ab80';
+  const HAIR = '#131313', HAIRL='#2e2e2e';
+  const SHOE = '#0d0d0d';
 
   const legs = [[27,32],[29,30],[31,27],[29,30]][f];
   const [llr,rlr] = legs;
   const arms = [[12,16],[13.5,14.5],[15,13],[13.5,14.5]][f];
   const [lar,rar] = arms;
+  const la=Math.round(lar),ra=Math.round(rar);
 
-  ctx.fillStyle='rgba(0,0,0,.22)';ctx.fillRect(X+S*3.5,BY+S*39,S*16,3);
+  ctx.fillStyle='rgba(0,0,0,.25)';ctx.fillRect(X+S*3.5,BY+S*39,S*16,3);
 
-  P(4,llr+10,6,3,SHOE);P(13,rlr+10,6,3,SHOE);
-  P(5,llr,4,13,SUIT);P(13,rlr,4,13,SUIT);
-  P(1,Math.round(lar),3,13,'#223a52');P(19,Math.round(rar),3,13,'#1a2a42');
+  // gambe (pantaloni con contorno) + scarpe
+  P(4,llr,6,13,OUT);P(12,rlr,6,13,OUT);
+  P(5,llr,4,12,SUITD);P(13,rlr,4,12,SUITD);
+  P(5,llr,1,12,SUIT);P(13,rlr,1,12,SUIT);
+  P(3,llr+10,7,3,OUT);P(12,rlr+10,7,3,OUT);
+  P(4,llr+10,5,2,SHOE);P(13,rlr+10,5,2,SHOE);
+  P(4,llr+10,2,1,'#333');P(13,rlr+10,2,1,'#333');
+
+  // braccia con contorno e mani
+  P(0,la,4,14,OUT);P(19,ra,4,14,OUT);
+  P(1,la+1,2,11,SUITL);P(20,ra+1,2,11,SUITD);
+  P(1,la+12,2,2,SKIN);P(20,ra+12,2,2,SKIN);
+
+  // torso con contorno
+  P(2,11,19,19,OUT);
   P(3,12,17,17,SUIT);
-  P(4,13,4,14,'#223a52');P(15,13,4,14,'#223a52');
-  P(10,12,2,14,TIE);
-  P(6,10,4,4,SHIRT);P(13,10,4,4,SHIRT);
-  P(9,9,5,4,SKIN);
+  // revers della giacca + shading
+  P(4,12,3,15,SUITL);P(16,12,3,15,SUITD);
+  P(7,12,2,5,SUITL);P(14,12,2,5,SUITD);
+  // camicia a V, nodo e cravatta
+  P(9,12,5,3,SHIRT);
+  P(10,13,3,2,TIED);
+  P(10.5,15,2,7,TIE);
+  P(10,22,3,2,TIE);P(10.5,24,2,1,TIED);
+  // bottone e pochette
+  P(11,26,1,1,'#c8a44a');
+  P(16,14,2,2,SHIRT);
+  // colletto e collo
+  P(6,10,4,3,SHIRT);P(13,10,4,3,SHIRT);
+  P(9,9,5,4,SKIN);P(9,11,5,1,SKIND);
 
+  // testa: contorno, viso, capelli
+  P(5,2,14,10,OUT);
   P(6,3,12,8,SKIN);
+  P(16,4,2,6,SKIND);
+  P(4,0,15,4,OUT);
   P(5,1,13,3,HAIR);
-  P(7,4,2,2,'#0f0a00');P(13,4,2,2,'#0f0a00');
-  P(8,5,1,1,'#fff');P(14,5,1,1,'#fff');
-  P(7,6,2,1,'#3a1800');P(13,6,2,1,'#3a1800');
-
-  if(d!=='up'){
-    P(7,12,8,3,'#b83828');
-    P(8,13,6,2,'#d87850');
-  }
+  P(6,1,5,1,HAIRL);
+  P(5,3,1,3,HAIR);P(17,3,1,3,HAIR);
+  // sopracciglia, occhi, bocca
+  P(7,3,2,1,HAIR);P(13,3,2,1,HAIR);
+  P(7,4,2,2,'#12100a');P(13,4,2,2,'#12100a');
+  P(8,4,1,1,'#fff');P(14,4,1,1,'#fff');
+  P(10,7,3,1,'#b9885f');
+  if(d==='left'){P(6,5,1,2,SKIND)}
+  if(d==='right'){P(16,5,1,2,SKIND)}
 
   const tc=panelOpen?'#ffd700':'#60a5fa';
-  ctx.fillStyle=panelOpen?'rgba(28,20,0,.8)':'rgba(0,12,36,.8)';ctx.fillRect(X+S*6-2,BY-17,S*11+4,16);
-  ctx.strokeStyle=tc;ctx.lineWidth=1.2;ctx.strokeRect(X+S*6-2,BY-17,S*11+4,16);
-  ctx.font='bold 6.8px "Press Start 2P"';ctx.textAlign='center';ctx.textBaseline='alphabetic';
-  ctx.shadowColor=tc;ctx.shadowBlur=7;ctx.fillStyle=tc;ctx.fillText('GG',X+S*11.5,BY-6);ctx.shadowBlur=0;
+  ctx.fillStyle=panelOpen?'rgba(28,20,0,.8)':'rgba(0,12,36,.8)';ctx.fillRect(X+S*6-3,BY-15,S*11+6,14);
+  ctx.strokeStyle=tc;ctx.lineWidth=1.2;ctx.strokeRect(X+S*6-3,BY-15,S*11+6,14);
+  ctx.font='bold 6px "Press Start 2P"';ctx.textAlign='center';ctx.textBaseline='alphabetic';
+  ctx.shadowColor=tc;ctx.shadowBlur=6;ctx.fillStyle=tc;ctx.fillText('GG',X+S*11.5,BY-5);ctx.shadowBlur=0;
 }
 
 function drawDialogue(){
   if(!dlg.active||panelOpen)return;
   const z=dlg.zone,t=Date.now(),done=dlg.lines.slice(0,dlg.li);
-  const lh=15,pad=13,bw=264;
-  const bh=pad+22+done.length*lh+(dlg.typing||dlg.waiting?lh:0)+22+pad;
+  const lh=19,pad=14,bw=318;
+  const bh=pad+24+done.length*lh+(dlg.typing||dlg.waiting?lh:0)+22+pad;
   const cx=player.x+player.w/2;
   let bx=Math.round(cx-bw/2),by=Math.round(player.y-bh-30);
   bx=Math.max(6,Math.min(W-bw-6,bx));by=Math.max(HH+6,by);
@@ -1125,12 +1156,12 @@ function drawDialogue(){
   const tx=Math.round(Math.max(bx+16,Math.min(bx+bw-16,cx)));
   ctx.fillStyle='rgba(3,5,12,.97)';ctx.beginPath();ctx.moveTo(tx-7,by+bh);ctx.lineTo(tx,by+bh+13);ctx.lineTo(tx+7,by+bh);ctx.fill();
   ctx.strokeStyle=z.ac;ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(tx-7,by+bh);ctx.lineTo(tx,by+bh+13);ctx.lineTo(tx+7,by+bh);ctx.stroke();
-  ctx.font='bold 7px "Press Start 2P"';ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.shadowColor=z.ac;ctx.shadowBlur=5;ctx.fillStyle=z.ac;ctx.fillText('GG >>>',bx+pad,by+pad+9);ctx.shadowBlur=0;
-  ctx.font='6px "Press Start 2P"';ctx.fillStyle='rgba(180,200,220,.44)';done.forEach((l,i)=>ctx.fillText(l,bx+pad,by+pad+23+i*lh));
-  if(dlg.li<dlg.lines.length){ctx.fillStyle='#e8f0ff';ctx.fillText(dlg.disp,bx+pad,by+pad+23+done.length*lh)}
+  ctx.font='bold 8px "Press Start 2P"';ctx.textAlign='left';ctx.textBaseline='alphabetic';ctx.shadowColor=z.ac;ctx.shadowBlur=5;ctx.fillStyle=z.ac;ctx.fillText('GG >>>',bx+pad,by+pad+9);ctx.shadowBlur=0;
+  ctx.font='8px "Press Start 2P"';ctx.fillStyle='rgba(195,212,230,.62)';done.forEach((l,i)=>ctx.fillText(l,bx+pad,by+pad+25+i*lh));
+  if(dlg.li<dlg.lines.length){ctx.fillStyle='#f2f7ff';ctx.fillText(dlg.disp,bx+pad,by+pad+25+done.length*lh)}
   const botY=by+bh-8;ctx.textAlign='right';
-  if(dlg.typing){ctx.fillStyle='rgba(100,116,139,.54)';ctx.font='4.5px "Press Start 2P"';ctx.fillText('[ENTER] salta',bx+bw-pad,botY)}
-  else if(dlg.waiting){const last=dlg.li>=dlg.lines.length-1;if(Math.floor(t/430)%2===0){ctx.fillStyle=z.ac;ctx.font='5.5px "Press Start 2P"';ctx.fillText(last?'▶ APRI [ENTER]':'▼ CONTINUA [ENTER]',bx+bw-pad,botY)}}
+  if(dlg.typing){ctx.fillStyle='rgba(120,138,160,.6)';ctx.font='5.5px "Press Start 2P"';ctx.fillText('[ENTER] salta',bx+bw-pad,botY)}
+  else if(dlg.waiting){const last=dlg.li>=dlg.lines.length-1;if(Math.floor(t/430)%2===0){ctx.fillStyle=z.ac;ctx.font='6.5px "Press Start 2P"';ctx.fillText(last?'▶ APRI [ENTER]':'▼ CONTINUA [ENTER]',bx+bw-pad,botY)}}
   ctx.textAlign='center';
 }
 
@@ -1226,9 +1257,7 @@ const BOOT=[
   '> RIUNIONE CHE POTEVA ESSERE UNA MAIL..SKIP',
   '> PARCHEGGIO TROVATO.......MIRACOLO',
   '> DEBUGGANDO I BUG DEL DEBUG...OK',
-  '> FONTANA: ACQUA VERA?.....QUASI',
   '> MOTIVAZIONE DEL LUNEDÌ....404',
-  '> SKYLINE PRONTA............OK',
   '',
   '[ SISTEMA PRONTO — ENTRA! ]',
   ''
